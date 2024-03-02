@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -7,17 +7,34 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-
-const mockMessages = [
-  { id: "1", text: "Hello there!", author: "UserA" },
-  { id: "2", text: "Hi! How are you?", author: "UserB" },
-];
+import { ref, onValue, push, set, off } from "firebase/database";
+import { database } from "../../firebase/config";
 
 const ChatScreen = () => {
   const [messageText, setMessageText] = useState("");
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    const messagesRef = ref(database, "messages/");
+    onValue(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      const parsedMessages = data
+        ? Object.keys(data).map((key) => {
+            return { id: key, ...data[key] };
+          })
+        : [];
+      setMessages(parsedMessages);
+    });
+
+    return () => off(messagesRef);
+  }, []);
 
   const sendMessage = () => {
-    console.log(messageText);
+    const newMessageRef = push(ref(database, "messages/"));
+    set(newMessageRef, {
+      text: messageText,
+      createdAt: Date.now(),
+    });
     setMessageText("");
   };
 
