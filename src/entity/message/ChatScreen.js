@@ -41,7 +41,7 @@ const ChatScreen = () => {
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <FlatList
-        data={mockMessages}
+        data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Text style={styles.message}>{`${item.author}: ${item.text}`}</Text>

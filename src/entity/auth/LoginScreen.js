@@ -5,19 +5,35 @@ import authService from "./authService";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
     setIsLoading(true);
-    const isValidUser = await authService.login(username);
-    setIsLoading(false);
+    setError(""); // Clear out any previous errors
 
-    if (isValidUser) {
-      navigation.navigate("Chat");
-    } else {
-      setError("Invalid username");
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const isValidUser = await authService.login(
+        email.trim(),
+        password.trim()
+      );
+      if (isValidUser) {
+        navigation.navigate("Chat");
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -25,9 +41,18 @@ const LoginScreen = () => {
     <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <TextInput
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        style={{ marginBottom: 20, borderWidth: 1, padding: 10 }}
+      />
+      <TextInput
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
         style={{ marginBottom: 20, borderWidth: 1, padding: 10 }}
       />
       {isLoading ? (
