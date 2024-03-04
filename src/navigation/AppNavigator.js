@@ -2,9 +2,9 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../entity/auth/LoginScreen";
-import ChatScreen from "../entity/message/ChatScreen";
 import HomePage from "../entity/auth/HomePage";
 import SignupScreen from "../entity/auth/SignupScreen";
+import TabNavigator from "./TabNavigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,9 +27,9 @@ const AppNavigator = () => (
         options={{ title: "Sign Up" }}
       />
       <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{ title: "Chat" }}
+        name="HomeTabs"
+        component={TabNavigator}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   </NavigationContainer>
