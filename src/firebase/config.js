@@ -1,18 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getDatabase } from "firebase/database";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCMsP3JwQ15fNdV8QcSHgXsYEM8_Lr5e40",
-  authDomain: "warzonecommunity-a4824.firebaseapp.com",
+  apiKey: "AIzaSyBRclt9ztV8nuDTJQCWJ6d-w4vG5D8bj4A",
+  authDomain: "warzonecommunity-rp2912.firebaseapp.com",
   databaseURL:
-    "https://warzonecommunity-a4824-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "warzonecommunity-a4824",
-  storageBucket: "warzonecommunity-a4824.appspot.com",
-  messagingSenderId: "691816939627",
-  appId: "1:691816939627:web:0c6dc79df33c5e35b1712e",
-  measurementId: "G-DDFCS6Y703",
+    "https://warzonecommunity-rp2912-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "warzonecommunity-rp2912",
+  storageBucket: "warzonecommunity-rp2912.appspot.com",
+  messagingSenderId: "359789594309",
+  appId: "1:359789594309:web:94942c385f41082ee312ac",
+  measurementId: "G-4PDTSJ3NWH",
 };
 
 // Initialize Firebase
@@ -21,5 +23,6 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 const database = getDatabase(app);
+const analytics = getAnalytics(app);
 
-export { auth, database };
+export { auth, database, app, createUserWithEmailAndPassword, analytics };
