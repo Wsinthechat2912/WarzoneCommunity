@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import authService from "./authService"; // Make sure this path is correct for your project structure
+import authService from "./authService";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -20,7 +20,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     setIsLoading(true);
-    setError(""); // Clear any previous errors
+    setError("");
 
     if (!email || !password) {
       setError("Please enter both email and password.");
@@ -29,20 +29,12 @@ const LoginScreen = () => {
     }
 
     try {
-      const isValidUser = await authService.login(
-        email.trim(),
-        password.trim()
-      );
-      if (isValidUser) {
-        navigation.navigate("Chat");
-      } else {
-        setError("Invalid credentials");
-      }
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setIsLoading(false);
+      await authService.login(email.trim(), password.trim());
+      navigation.navigate("Chat");
+    } catch (error) {
+      setError("Failed to log in. Please check your credentials.");
     }
+    setIsLoading(false);
   };
 
   return (

@@ -11,7 +11,6 @@ const authService = {
       );
       return userCredential.user;
     } catch (error) {
-      console.error(error);
       throw error;
     }
   },

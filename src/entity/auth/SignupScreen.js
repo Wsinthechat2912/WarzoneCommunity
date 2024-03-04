@@ -2,36 +2,42 @@ import React, { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { auth, createUserWithEmailAndPassword } from "../../firebase/config";
+import { auth } from "../../firebase/config";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSignup = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        // Navigate to the Login Screen or directly to the Chat Screen
-        navigation.navigate("Login");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // Handle Errors here.
-        console.error(errorCode, errorMessage);
-      });
+  const handleSignup = async () => {
+    setIsLoading(true);
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
+      navigation.navigate("Login");
+    } catch (error) {
+      setError("Failed to sign up: " + error.message);
+    }
+    setIsLoading(false);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <TextInput
         placeholder="Email"
         value={email}
@@ -47,9 +53,13 @@ const SignupScreen = ({ navigation }) => {
         secureTextEntry
         style={styles.input}
       />
-      <TouchableOpacity onPress={handleSignup} style={styles.button}>
-        <Text style={styles.buttonText}>Create Account</Text>
-      </TouchableOpacity>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <TouchableOpacity onPress={handleSignup} style={styles.button}>
+          <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -90,6 +100,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "500",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 40,
   },
 });
 
