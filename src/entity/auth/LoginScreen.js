@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { Button, TextInput, View, Text, ActivityIndicator } from "react-native";
+import {
+  Button,
+  TextInput,
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import authService from "./authService";
+import authService from "./authService"; // Make sure this path is correct for your project structure
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -12,7 +20,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     setIsLoading(true);
-    setError(""); // Clear out any previous errors
+    setError(""); // Clear any previous errors
 
     if (!email || !password) {
       setError("Please enter both email and password.");
@@ -38,30 +46,76 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
-      {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
+    <View style={styles.container}>
+      <Text style={styles.title}>Log In</Text>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        style={{ marginBottom: 20, borderWidth: 1, padding: 10 }}
+        style={styles.input}
       />
       <TextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        style={{ marginBottom: 20, borderWidth: 1, padding: 10 }}
+        style={styles.input}
       />
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator size="large" color="#1A73E8" />
       ) : (
-        <Button title="Log In" onPress={handleLogin} />
+        <TouchableOpacity onPress={handleLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#282c34",
+    padding: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#FFF",
+    marginBottom: 30,
+  },
+  input: {
+    width: "100%",
+    padding: 15,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    backgroundColor: "#FFF",
+  },
+  button: {
+    width: "100%",
+    padding: 15,
+    backgroundColor: "#1A73E8",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: "500",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 40,
+  },
+});
 
 export default LoginScreen;
