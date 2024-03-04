@@ -16,16 +16,15 @@ const TabNavigator = () => {
           let iconName;
 
           if (route.name === "Profile") {
-            iconName = focused ? "person" : "person-outline"; // Removed "ios-" prefix
+            iconName = focused ? "person" : "person-outline";
           } else if (route.name === "Notifications") {
-            iconName = focused ? "notifications" : "notifications-outline"; // Removed "ios-" prefix
+            iconName = focused ? "notifications" : "notifications-outline";
           } else if (route.name === "Communities") {
-            iconName = focused ? "people" : "people-outline"; // Removed "ios-" prefix
+            iconName = focused ? "people" : "people-outline";
           } else if (route.name === "Chats") {
-            iconName = focused ? "chatbubbles" : "chatbubbles-outline"; // Removed "ios-" prefix
+            iconName = focused ? "chatbubbles" : "chatbubbles-outline";
           }
 
-          // Return the Ionicon component with the correct icon name
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "tomato",
