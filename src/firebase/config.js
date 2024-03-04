@@ -3,7 +3,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRclt9ztV8nuDTJQCWJ6d-w4vG5D8bj4A",
@@ -23,6 +22,5 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 const database = getDatabase(app);
-const analytics = getAnalytics(app);
 
-export { auth, database, app, createUserWithEmailAndPassword, analytics };
+export { auth, database, app, createUserWithEmailAndPassword };

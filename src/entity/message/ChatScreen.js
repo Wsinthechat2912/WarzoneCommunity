@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
-  Button,
+  TouchableOpacity,
   FlatList,
   Text,
   StyleSheet,
@@ -39,43 +39,70 @@ const ChatScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
+    <View style={styles.container}>
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.message}>{`${item.author}: ${item.text}`}</Text>
+          <Text style={styles.message}>{item.text}</Text>
         )}
+        inverted
       />
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={messageText}
           onChangeText={setMessageText}
-          placeholder="Type a message"
+          placeholder="Type a message..."
+          placeholderTextColor="#666"
         />
-        <Button title="Send" onPress={sendMessage} />
+        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#282c34",
+  },
   message: {
     padding: 10,
     marginVertical: 5,
-    backgroundColor: "#f3f3f3",
+    backgroundColor: "#1A73E8",
+    alignSelf: "flex-start",
+    borderRadius: 20,
+    maxWidth: "80%",
+    color: "#fff",
+    margin: 8,
   },
   inputContainer: {
     flexDirection: "row",
     padding: 10,
+    borderTopWidth: 1,
+    borderColor: "#555",
+    backgroundColor: "#333",
   },
   input: {
     flex: 1,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: "#cccccc",
+    borderColor: "#555",
+    backgroundColor: "#fff",
+    borderRadius: 20,
     padding: 10,
+    color: "#000",
+  },
+  sendButton: {
+    backgroundColor: "#1A73E8",
+    borderRadius: 20,
+    padding: 10,
+  },
+  sendButtonText: {
+    color: "#fff",
   },
 });
 
