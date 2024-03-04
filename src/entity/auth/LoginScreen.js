@@ -30,7 +30,7 @@ const LoginScreen = () => {
 
     try {
       await authService.login(email.trim(), password.trim());
-      navigation.navigate("Chat");
+      navigation.navigate("HomeTabs");
     } catch (error) {
       setError("Failed to log in. Please check your credentials.");
     }
