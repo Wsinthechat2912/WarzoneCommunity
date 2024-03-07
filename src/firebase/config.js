@@ -6,6 +6,7 @@ import {
   getReactNativePersistence,
 } from "firebase/auth";
 import { getDatabase } from "firebase/database";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRclt9ztV8nuDTJQCWJ6d-w4vG5D8bj4A",
@@ -18,6 +19,11 @@ const firebaseConfig = {
   appId: "1:359789594309:web:94942c385f41082ee312ac",
   measurementId: "G-4PDTSJ3NWH",
 };
+
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LfLlZApAAAAACPxg_L5bG7gmUoHxMLVRuO80ad8"),
+  isTokenAutoRefreshEnabled: true,
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
