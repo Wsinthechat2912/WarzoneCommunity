@@ -20,13 +20,12 @@ const firebaseConfig = {
   measurementId: "G-4PDTSJ3NWH",
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LfLlZApAAAAACPxg_L5bG7gmUoHxMLVRuO80ad8"),
   isTokenAutoRefreshEnabled: true,
 });
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
