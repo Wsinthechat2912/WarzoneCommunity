@@ -6,9 +6,13 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { auth } from "../../firebase/config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -25,13 +29,31 @@ const SignupScreen = ({ navigation }) => {
       setIsLoading(false);
       return;
     }
+
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
-      navigation.navigate("Login");
-    } catch (error) {
-      setError("Failed to sign up: " + error.message);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password.trim()
+      );
+
+      // Send verification email
+      sendEmailVerification(userCredential.user)
+        .then(() => {
+          Alert.alert(
+            "Verify your email",
+            "A verification email has been sent. Please check your inbox and verify your email before logging in.",
+            [{ text: "OK", onPress: () => navigation.navigate("Login") }]
+          );
+        })
+        .catch((verificationError) => {
+          console.error("Failed to send verification email", verificationError);
+        });
+    } catch (signupError) {
+      setError("Failed to sign up: " + signupError.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

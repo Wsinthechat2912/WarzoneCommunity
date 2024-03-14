@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { auth, database } from "../../firebase/config";
-import { updateEmail, updateProfile } from "firebase/auth";
 import { ref, set, onValue } from "firebase/database";
+import authService from "../auth/authService";
 
 const ProfileScreen = () => {
   const [name, setName] = useState("");
@@ -11,36 +11,53 @@ const ProfileScreen = () => {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch the current user's data
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
-      setEmail(user.email);
-      setName(user.displayName);
-      // Here you would also fetch the user's status from your database
-      // Assume we have a path like 'users/{uid}/status'
-      const statusRef = ref(database, "users/" + user.uid + "/status");
+      setEmail(user.email || "");
+      setName(user.displayName || "");
+      const statusRef = ref(database, `users/${user.uid}/status`);
       onValue(statusRef, (snapshot) => {
         setStatus(snapshot.val() || "offline");
       });
     }
   }, []);
 
-  const handleUpdateProfile = async () => {
+  const updateUserEmail = async () => {
     setLoading(true);
-    const user = auth.currentUser;
     try {
-      // Update the user's profile
-      if (user) {
-        await updateEmail(user, email);
-        await updateProfile(user, { displayName: name });
-        // Update the user's status
-        const statusRef = ref(database, "users/" + user.uid + "/status");
-        await set(statusRef, status);
-      }
-      alert("Profile updated successfully!");
+      await authService.updateEmail(email.trim());
+      Alert.alert(
+        "Verify New Email",
+        "A verification link has been sent to your new email address. Please verify to complete the email update."
+      );
     } catch (error) {
-      alert("Failed to update profile: " + error.message);
+      Alert.alert("Update Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserName = async () => {
+    setLoading(true);
+    try {
+      await authService.updateProfile(name);
+      Alert.alert("Success", "Name updated successfully!");
+    } catch (error) {
+      Alert.alert("Update Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserStatus = async () => {
+    setLoading(true);
+    try {
+      const statusRef = ref(database, `users/${user.uid}/status`);
+      await set(statusRef, status);
+      Alert.alert("Success", "Status updated successfully!");
+    } catch (error) {
+      Alert.alert("Update Failed", error.message);
     } finally {
       setLoading(false);
     }
@@ -55,6 +72,8 @@ const ProfileScreen = () => {
         style={styles.input}
         placeholder="Name"
       />
+      <Button title="Update Name" onPress={updateUserName} disabled={loading} />
+
       <Text style={styles.label}>Email</Text>
       <TextInput
         value={email}
@@ -63,10 +82,16 @@ const ProfileScreen = () => {
         placeholder="Email"
         keyboardType="email-address"
       />
+      <Button
+        title="Update Email"
+        onPress={updateUserEmail}
+        disabled={loading}
+      />
+
       <Text style={styles.label}>Status</Text>
       <Picker
         selectedValue={status}
-        onValueChange={(itemValue, itemIndex) => setStatus(itemValue)}
+        onValueChange={(itemValue) => setStatus(itemValue)}
         style={styles.picker}
       >
         <Picker.Item label="Online" value="online" />
@@ -74,12 +99,13 @@ const ProfileScreen = () => {
         <Picker.Item label="Busy" value="busy" />
         <Picker.Item label="Do Not Disturb" value="do_not_disturb" />
       </Picker>
-      {loading ? (
-        // Show loading indicator while updating profile
-        <Text>Updating...</Text>
-      ) : (
-        <Button title="Update Profile" onPress={handleUpdateProfile} />
-      )}
+      <Button
+        title="Update Status"
+        onPress={updateUserStatus}
+        disabled={loading}
+      />
+
+      {loading && <Text>Updating...</Text>}
     </View>
   );
 };
