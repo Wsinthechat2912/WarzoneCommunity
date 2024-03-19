@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { auth, database } from "../../firebase/config";
 import { ref, set, onValue } from "firebase/database";
 import authService from "../auth/authService";
+import { signOut } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
@@ -63,6 +75,16 @@ const ProfileScreen = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      console.log("User signed out successfully");
+      navigation.navigate("Home"); // Navigate to HomePage after sign out
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Name</Text>
@@ -106,6 +128,10 @@ const ProfileScreen = () => {
       />
 
       {loading && <Text>Updating...</Text>}
+
+      <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
+        <Text style={styles.signOutButtonText}>Sign Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -115,6 +141,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
   },
   label: {
     fontSize: 16,
@@ -134,6 +162,49 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: "gray",
+  },
+  signOutButton: {
+    backgroundColor: "#D32F2F",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
+    marginTop: 20,
+    minWidth: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  signOutButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  profileDetailsContainer: {
+    width: "80%",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    marginBottom: 20,
+  },
+  profileDetailText: {
+    fontSize: 18,
+    marginVertical: 5,
   },
 });
 

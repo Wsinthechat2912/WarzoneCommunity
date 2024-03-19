@@ -8,17 +8,24 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { auth } from "../../firebase/config";
+import { auth, database } from "../../firebase/config";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
+import { ref, set } from "firebase/database";
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const createUserProfile = (userId, email) => {
+    set(ref(database, "users/" + userId), {
+      email: email,
+    }).catch((error) => console.error("Error creating user profile:", error));
+  };
 
   const handleSignup = async () => {
     setIsLoading(true);
@@ -37,8 +44,10 @@ const SignupScreen = ({ navigation }) => {
         password.trim()
       );
 
+      createUserProfile(userCredential.user.uid, email.trim());
+
       // Send verification email
-      sendEmailVerification(userCredential.user)
+      await sendEmailVerification(userCredential.user)
         .then(() => {
           Alert.alert(
             "Verify your email",

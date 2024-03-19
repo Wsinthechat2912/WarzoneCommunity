@@ -5,6 +5,8 @@ import LoginScreen from "../entity/auth/LoginScreen";
 import HomePage from "../entity/auth/HomePage";
 import SignupScreen from "../entity/auth/SignupScreen";
 import TabNavigator from "./TabNavigator";
+import ProfileScreen from "../entity/profile/ProfileScreen";
+import AddFriend from "../entity/message/AddFriend";
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +32,16 @@ const AppNavigator = () => (
         name="HomeTabs"
         component={TabNavigator}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: "Profile" }}
+      />
+      <Stack.Screen
+        name="AddFriend"
+        component={AddFriend}
+        options={{ title: "Add Friend" }}
       />
     </Stack.Navigator>
   </NavigationContainer>
