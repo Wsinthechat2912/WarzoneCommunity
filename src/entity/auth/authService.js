@@ -5,6 +5,7 @@ import {
   updateEmail,
   updateProfile,
   signOut,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import {
   getDatabase,
@@ -118,6 +119,7 @@ const authService = {
         message: "Friend request already sent or received.",
       };
     }
+
     await set(requestRef, {
       senderId: currentUser.uid,
       status: "pending",

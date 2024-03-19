@@ -29,10 +29,16 @@ const LoginScreen = () => {
     }
 
     try {
-      await authService.login(email.trim(), password.trim());
-      navigation.navigate("HomeTabs");
+      const response = await authService.login(email.trim(), password.trim());
+      if (response.success) {
+        navigation.navigate("HomeTabs");
+      } else {
+        setError("Failed to log in. Please check your credentials.");
+        console.error(response.error);
+      }
     } catch (error) {
       setError("Failed to log in. Please check your credentials.");
+      console.error("Login error:", error);
     }
     setIsLoading(false);
   };
