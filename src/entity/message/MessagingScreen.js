@@ -7,44 +7,36 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-import { auth, database } from "../../firebase/config";
-import { ref, push, onValue, set, off } from "firebase/database";
+import { auth } from "../../firebase/config";
+import {
+  sendMessage,
+  listenForMessages,
+  getConversationId,
+} from "./MessageService";
 
 const MessagingScreen = ({ route }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const { friendId } = route.params;
+  const { userId: recipientId, userName } = route.params;
+  const currentUserId = auth.currentUser?.uid;
 
   useEffect(() => {
-    const messagesRef = ref(database, `messages/${friendId}`);
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const loadedMessages = Object.keys(data)
-        .map((key) => ({
-          id: key,
-          ...data[key],
-        }))
-        .sort((a, b) => a.timestamp - b.timestamp);
-      setMessages(loadedMessages);
-    });
-
+    if (!currentUserId || !recipientId) return;
+    const conversationId = getConversationId(currentUserId, recipientId);
+    const unsubscribe = listenForMessages(conversationId, setMessages);
     return () => unsubscribe();
-  }, [friendId]);
+  }, [recipientId, currentUserId]);
 
-  const sendMessage = () => {
-    if (!message.trim()) return;
-    const chatPath = `messages/${friendId}`;
-    const newMessageRef = push(ref(database, chatPath));
-    set(newMessageRef, {
-      text: message.trim(),
-      senderId: auth.currentUser.uid,
-      timestamp: Date.now(),
-    });
+  const handleSendMessage = async () => {
+    if (!message.trim() || !currentUserId || !recipientId) return;
+    const conversationId = getConversationId(currentUserId, recipientId);
+    await sendMessage(conversationId, message.trim(), recipientId);
     setMessage("");
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.userName}>{userName}</Text>
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
@@ -52,9 +44,7 @@ const MessagingScreen = ({ route }) => {
           <Text
             style={[
               styles.message,
-              item.senderId === auth.currentUser.uid
-                ? styles.sent
-                : styles.received,
+              item.senderId === currentUserId ? styles.sent : styles.received,
             ]}
           >
             {item.text}
@@ -69,7 +59,7 @@ const MessagingScreen = ({ route }) => {
           onChangeText={setMessage}
           placeholder="Type a message..."
         />
-        <Button title="Send" onPress={sendMessage} />
+        <Button title="Send" onPress={handleSendMessage} />
       </View>
     </View>
   );
@@ -79,6 +69,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   inputContainer: {
     flexDirection: "row",

@@ -7,6 +7,7 @@ import SignupScreen from "../entity/auth/SignupScreen";
 import TabNavigator from "./TabNavigator";
 import ProfileScreen from "../entity/profile/ProfileScreen";
 import AddFriend from "../entity/message/AddFriend";
+import MessagingScreen from "../entity/message/MessagingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,13 @@ const AppNavigator = () => (
         name="AddFriend"
         component={AddFriend}
         options={{ title: "Add Friend" }}
+      />
+      <Stack.Screen
+        name="MessagingScreen"
+        component={MessagingScreen}
+        options={({ route }) => ({
+          title: route.params.friendName || "Messaging",
+        })}
       />
     </Stack.Navigator>
   </NavigationContainer>

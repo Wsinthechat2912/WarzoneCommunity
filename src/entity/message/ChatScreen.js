@@ -17,8 +17,12 @@ const ChatScreen = () => {
 
   useEffect(() => {
     const fetchFriends = async () => {
-      const fetchedFriends = await authService.fetchFriends();
-      setFriends(fetchedFriends);
+      try {
+        const fetchedFriends = await authService.fetchFriends();
+        setFriends(fetchedFriends);
+      } catch (error) {
+        console.error("Failed to fetch friends:", error);
+      }
     };
 
     fetchFriends();
@@ -26,10 +30,8 @@ const ChatScreen = () => {
 
   const navigateToChat = (friend) => {
     navigation.navigate("MessagingScreen", {
-      friendId: friend.id,
-      friendName: friend.name,
-      friendAvatarUrl: friend.avatarUrl,
-      friendStatus: friend.status,
+      userId: friend.id,
+      userName: friend.name,
     });
   };
 
@@ -43,7 +45,7 @@ const ChatScreen = () => {
             style={styles.friendItem}
             onPress={() => navigateToChat(item)}
           >
-            <Text style={styles.friendName}>{item.name}</Text>
+            <Text style={styles.userName}>{item.name}</Text>
           </TouchableOpacity>
         )}
         ListHeaderComponent={
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
   addFriendButtonText: {
     color: "white",
     fontSize: 16,
-    marginLeft: 5,
+    marginLeft: 10,
   },
 });
 
