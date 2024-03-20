@@ -6,23 +6,18 @@ import {
   updateProfile,
   signOut,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
 } from "firebase/auth";
-import {
-  getDatabase,
-  ref,
-  push,
-  set,
-  get,
-  child,
-  update,
-  remove,
-  onValue,
-} from "firebase/database";
+import { getDatabase, ref, set, get, remove } from "firebase/database";
 import { auth } from "../../firebase/config";
 
 const database = getDatabase();
 
 const authService = {
+  getCurrentUserId: () => {
+    return auth.currentUser ? auth.currentUser.uid : null;
+  },
+
   login: async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -34,6 +29,23 @@ const authService = {
     } catch (error) {
       console.error("Login error:", error);
       return { success: false, error: error.message };
+    }
+  },
+
+  onAuthStateChanged: (callback) => {
+    return onAuthStateChanged(auth, callback);
+  },
+
+  getUserData: async () => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not authenticated");
+
+    const userRef = ref(database, `users/${user.uid}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      throw new Error("No user data found");
     }
   },
 
@@ -49,9 +61,7 @@ const authService = {
       await sendEmailVerification(user);
 
       const userProfileRef = ref(database, `users/${user.uid}`);
-      await set(userProfileRef, {
-        email: email,
-      });
+      await set(userProfileRef, { email: email });
 
       return { success: true, user: user };
     } catch (error) {
@@ -90,23 +100,28 @@ const authService = {
     return targetUserUID;
   },
 
-  sendFriendRequest: async (targetUserUID) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
+  sendFriendRequest: async (targetEmail) => {
+    const currentUserUid = this.getCurrentUserId();
+    if (!currentUserUid) {
       return { success: false, message: "User not authenticated" };
     }
 
-    if (targetUserUID === currentUser.uid) {
+    const targetUserUID = await this.searchUserByEmail(targetEmail);
+    if (!targetUserUID) {
+      return { success: false, message: "User not found" };
+    }
+
+    if (targetUserUID === currentUserUid) {
       return { success: false, message: "Cannot send a request to yourself." };
     }
 
     const requestRef = ref(
       database,
-      `friendRequests/${targetUserUID}/${currentUser.uid}`
+      `friendRequests/${targetUserUID}/${currentUserUid}`
     );
     const reverseRequestRef = ref(
       database,
-      `friendRequests/${currentUser.uid}/${targetUserUID}`
+      `friendRequests/${currentUserUid}/${targetUserUID}`
     );
 
     const [existingRequestSnapshot, reverseRequestSnapshot] = await Promise.all(
@@ -121,7 +136,8 @@ const authService = {
     }
 
     await set(requestRef, {
-      senderId: currentUser.uid,
+      senderId: currentUserUid,
+      recipientId: targetUserUID,
       status: "pending",
       timestamp: Date.now(),
     });
@@ -177,31 +193,37 @@ const authService = {
 
   fetchFriends: async () => {
     const user = auth.currentUser;
-    if (!user) return [];
+    if (!user) {
+      console.error("No current user for fetchFriends.");
+      return [];
+    }
 
-    // Reference to the current user's friends list in the database
     const friendsRef = ref(database, `users/${user.uid}/friends`);
-    const snapshot = await get(friendsRef);
+    try {
+      const snapshot = await get(friendsRef);
+      if (snapshot.exists()) {
+        console.log("Friends data found");
+        const friendsIds = Object.keys(snapshot.val());
+        const friendsDetails = [];
 
-    if (snapshot.exists()) {
-      const friendsIds = Object.keys(snapshot.val());
-      const friendsDetails = [];
-
-      for (const friendId of friendsIds) {
-        // Assuming we store user details under 'users/userId'
-        const friendDetailRef = ref(database, `users/${friendId}`);
-        const friendSnapshot = await get(friendDetailRef);
-
-        if (friendSnapshot.exists()) {
-          friendsDetails.push({
-            id: friendId,
-            ...friendSnapshot.val(),
-          });
+        for (const friendId of friendsIds) {
+          const friendDetailRef = ref(database, `users/${friendId}`);
+          const friendSnapshot = await get(friendDetailRef);
+          if (friendSnapshot.exists()) {
+            friendsDetails.push({
+              id: friendId,
+              ...friendSnapshot.val(),
+            });
+          }
         }
+        console.log(friendsDetails);
+        return friendsDetails;
+      } else {
+        console.log("No friends data available");
+        return [];
       }
-
-      return friendsDetails;
-    } else {
+    } catch (error) {
+      console.error("Error fetching friends data:", error);
       return [];
     }
   },
@@ -236,6 +258,11 @@ const authService = {
       console.error("Error updating profile:", error);
       return { success: false, error: error.message };
     }
+  },
+
+  updateProfileName: async (userId, newName) => {
+    const userProfileRef = ref(database, `users/${userId}`);
+    await update(userProfileRef, { name: newName });
   },
 
   signOutUser: async () => {
