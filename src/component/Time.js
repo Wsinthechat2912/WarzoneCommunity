@@ -1,19 +1,29 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Ensure you have expo icons installed
 
 const Time = ({ isSender, seen, timestamp }) => {
+  const timeString = new Date(timestamp).toLocaleTimeString([], {
+    timeStyle: "short",
+  }); // Formats time more concisely
+
   return (
-    <View style={styles.timeContainer}>
+    <View style={[styles.timeContainer, isSender && styles.senderContainer]}>
       <Text
         style={[
           styles.timeText,
           isSender ? styles.senderTime : styles.receiverTime,
         ]}
       >
-        {new Date(timestamp).toLocaleTimeString()}
+        {timeString}
       </Text>
       {isSender && (
-        <Text style={styles.deliveryStatus}>{seen ? "Seen" : "Delivered"}</Text>
+        <Ionicons
+          name={seen ? "checkmark-done" : "checkmark"}
+          size={12}
+          color={seen ? "lightgreen" : "white"}
+          style={styles.statusIcon}
+        />
       )}
     </View>
   );
@@ -22,20 +32,24 @@ const Time = ({ isSender, seen, timestamp }) => {
 const styles = StyleSheet.create({
   timeContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
     alignItems: "center",
+    marginTop: 2,
+  },
+  senderContainer: {
+    justifyContent: "flex-end",
   },
   timeText: {
-    fontSize: 10,
+    fontSize: 12,
+    color: "#ccc",
   },
   senderTime: {
-    color: "white",
+    color: "#ddd",
+    marginRight: 4,
   },
   receiverTime: {
-    color: "black",
+    color: "#666",
   },
-  deliveryStatus: {
-    fontSize: 10,
+  statusIcon: {
     marginLeft: 5,
   },
 });
