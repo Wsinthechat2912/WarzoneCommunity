@@ -2,17 +2,21 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
-  Button,
+  TouchableOpacity,
   FlatList,
-  Text,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Ensure you have expo icons installed
 import { auth } from "../../firebase/config";
 import {
   sendMessage,
   listenForMessages,
   getConversationId,
 } from "./MessageService";
+import MessageItem from "../../component/MessageItem";
+import ChatHeader from "../../component/ChatHeader";
 
 const MessagingScreen = ({ route }) => {
   const [message, setMessage] = useState("");
@@ -35,49 +39,53 @@ const MessagingScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.userName}>{userName}</Text>
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Text
-            style={[
-              styles.message,
-              item.senderId === currentUserId ? styles.sent : styles.received,
-            ]}
-          >
-            {item.text}
-          </Text>
-        )}
-        inverted
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type a message..."
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    >
+      <ChatHeader userName={userName} status="Online" />
+      <View style={styles.container}>
+        <FlatList
+          style={{ flex: 1 }}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <MessageItem
+              isSender={item.senderId === currentUserId}
+              message={item}
+            />
+          )}
         />
-        <Button title="Send" onPress={handleSendMessage} />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={message}
+            onChangeText={setMessage}
+            placeholder="Type a message..."
+          />
+          <TouchableOpacity
+            onPress={handleSendMessage}
+            style={styles.sendButton}
+          >
+            <Ionicons name="send" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
+    backgroundColor: "#f5f5f5",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 10,
+    backgroundColor: "#fff",
   },
   input: {
     flex: 1,
@@ -85,21 +93,13 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     padding: 10,
     marginRight: 10,
-    borderRadius: 5,
-  },
-  message: {
+    borderRadius: 25,
     backgroundColor: "#f0f0f0",
+  },
+  sendButton: {
+    backgroundColor: "#007bff",
     padding: 10,
-    marginVertical: 5,
-    borderRadius: 5,
-  },
-  sent: {
-    alignSelf: "flex-end",
-    backgroundColor: "#DCF8C5",
-  },
-  received: {
-    alignSelf: "flex-start",
-    backgroundColor: "#ECECEC",
+    borderRadius: 50,
   },
 });
 

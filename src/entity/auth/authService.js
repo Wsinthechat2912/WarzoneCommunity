@@ -1,14 +1,15 @@
 import {
   getAuth,
   signInWithEmailAndPassword,
-  sendEmailVerification,
-  updateEmail,
-  updateProfile,
-  signOut,
   createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateEmail as firebaseUpdateEmail,
+  updateProfile as firebaseUpdateProfile,
+  signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "firebase/auth";
-import { getDatabase, ref, set, get, remove } from "firebase/database";
+import { getDatabase, ref, set, get, remove, update } from "firebase/database";
 import { auth } from "../../firebase/config";
 
 const database = getDatabase();
@@ -80,6 +81,19 @@ const authService = {
         console.error("Error sending email verification", error);
         throw error;
       }
+    }
+  },
+
+  sendPasswordResetEmail: async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return {
+        success: true,
+        message: "Password reset email sent successfully",
+      };
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      return { success: false, error: error.message };
     }
   },
 
@@ -230,39 +244,48 @@ const authService = {
 
   updateEmail: async (newEmail) => {
     const currentUser = auth.currentUser;
-    if (!currentUser)
-      return { success: false, message: "User not authenticated" };
+    if (!currentUser) throw new Error(" User is not authenticated");
 
-    try {
-      await updateEmail(currentUser, newEmail);
-      await sendEmailVerification(currentUser);
-      return {
-        success: true,
-        message: "Email updated and verification email sent",
-      };
-    } catch (error) {
-      console.error("Error updating email:", error);
-      return { success: false, error: error.message };
-    }
+    await firebaseUpdateEmail(currentUser, newEmail)
+      .then(() => {
+        sendEmailVerification(currentUser).then(() => {
+          Alert.alert(
+            "Verify Email",
+            "A verification email has been sent to your new email address. Please check your inbox and verify."
+          );
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating email:", error);
+        throw new Error(error.message);
+      });
   },
 
-  updateProfile: async (name) => {
+  updateProfile: async (userId, { name, status }) => {
     const currentUser = auth.currentUser;
-    if (!currentUser)
-      return { success: false, message: "User not authenticated" };
+    if (!currentUser) throw new Error("User is not authenticated");
 
-    try {
-      await updateProfile(currentUser, { displayName: name });
-      return { success: true, message: "Profile updated successfully" };
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      return { success: false, error: error.message };
+    if (name) {
+      await firebaseUpdateProfile(currentUser, { displayName: name });
+      // Update name in the database
+      const userRef = ref(database, `users/${userId}`);
+      await update(userRef, { name, status });
     }
   },
 
-  updateProfileName: async (userId, newName) => {
-    const userProfileRef = ref(database, `users/${userId}`);
-    await update(userProfileRef, { name: newName });
+  updateUserStatus: async (userId, status) => {
+    const statusRef = ref(database, `users/${userId}/status`);
+    await set(statusRef, status);
+  },
+
+  getUserProfile: async (userId) => {
+    const userRef = ref(database, `users/${userId}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      throw new Error("User profile not found");
+    }
   },
 
   signOutUser: async () => {

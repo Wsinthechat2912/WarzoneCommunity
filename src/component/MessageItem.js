@@ -18,11 +18,7 @@ const MessageItem = ({ isSender, message }) => {
       >
         {message.text}
       </Text>
-      <Time
-        isSender={isSender}
-        seen={message.seen}
-        timestamp={message.timestamp}
-      />
+      <Time isSender={isSender} timestamp={message.timestamp} />
     </View>
   );
 };
@@ -31,25 +27,24 @@ const styles = StyleSheet.create({
   messageContainer: {
     maxWidth: "80%",
     padding: 10,
-    margin: 10,
-    borderRadius: 10,
+    marginVertical: 5,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+    backgroundColor: "#f0f0f0",
+    marginHorizontal: 10,
   },
   sender: {
     alignSelf: "flex-end",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#007bff",
   },
   receiver: {
-    alignSelf: "flex-start",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#e5e5ea",
   },
   messageText: {
-    fontSize: 16,
+    color: "#000",
   },
   senderText: {
-    color: "white",
-  },
-  receiverText: {
-    color: "black",
+    color: "#fff",
   },
 });
 
