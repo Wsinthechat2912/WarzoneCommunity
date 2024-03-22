@@ -108,23 +108,56 @@ const authService = {
         targetUserUID = childSnapshot.key;
       }
     });
-    if (!targetUserUID) {
-      return null;
-    }
     return targetUserUID;
   },
 
-  sendFriendRequest: async (targetEmail) => {
-    const currentUserUid = this.getCurrentUserId();
+  searchUserByName: async (name) => {
+    const usersRef = ref(database, "users/");
+    let targetUserUID = null;
+
+    const snapshot = await get(usersRef);
+    snapshot.forEach((childSnapshot) => {
+      const user = childSnapshot.val();
+      if (user.name === name) {
+        targetUserUID = childSnapshot.key;
+      }
+    });
+    return targetUserUID;
+  },
+
+  searchUserById: async (userId) => {
+    const userRef = ref(database, `users/${userId}`);
+    const snapshot = await get(userRef);
+    return snapshot.exists() ? userId : null;
+  },
+
+  sendFriendRequest: async (identifier) => {
+    const currentUserUid = auth.currentUser ? auth.currentUser.uid : null;
     if (!currentUserUid) {
       return { success: false, message: "User not authenticated" };
     }
 
-    const targetUserUID = await this.searchUserByEmail(targetEmail);
+    let targetUserUID = null;
+
+    try {
+      if (identifier.includes("@")) {
+        // Search by Email
+        targetUserUID = await authService.searchUserByEmail(identifier);
+      } else if (identifier.length === 28) {
+        // Search by User ID
+        targetUserUID = await authService.searchUserById(identifier);
+      } else {
+        // Search by Name
+        targetUserUID = await authService.searchUserByName(identifier);
+      }
+    } catch (error) {
+      console.error("Search user error:", error);
+      return { success: false, message: "Failed to search for the user" };
+    }
+
     if (!targetUserUID) {
       return { success: false, message: "User not found" };
     }
-
     if (targetUserUID === currentUserUid) {
       return { success: false, message: "Cannot send a request to yourself." };
     }

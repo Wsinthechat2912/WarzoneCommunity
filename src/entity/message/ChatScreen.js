@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import authService from "../auth/authService";
 import { Ionicons } from "@expo/vector-icons";
+import { Avatar } from "react-native-paper";
 
 const ChatScreen = () => {
   const navigation = useNavigation();
@@ -32,7 +33,23 @@ const ChatScreen = () => {
     navigation.navigate("MessagingScreen", {
       userId: friend.id,
       userName: friend.name,
+      avatar: friend.avatar,
     });
+  };
+
+  const renderHeader = () => {
+    return (
+      <View>
+        <TouchableOpacity
+          style={styles.addFriendButton}
+          onPress={() => navigation.navigate("AddFriend")}
+        >
+          <Ionicons name="person-add" size={24} color="white" />
+          <Text style={styles.addFriendButtonText}>Add Friend</Text>
+        </TouchableOpacity>
+        <Text style={styles.friendsLabel}>Your Friends:</Text>
+      </View>
+    );
   };
 
   return (
@@ -45,18 +62,15 @@ const ChatScreen = () => {
             style={styles.friendItem}
             onPress={() => navigateToChat(item)}
           >
-            <Text style={styles.userName}>{item.name}</Text>
+            <Avatar.Text
+              size={40}
+              label={item.name.charAt(0)}
+              style={styles.avatar}
+            />
+            <Text style={styles.friendName}>{item.name}</Text>
           </TouchableOpacity>
         )}
-        ListHeaderComponent={
-          <TouchableOpacity
-            style={styles.addFriendButton}
-            onPress={() => navigation.navigate("AddFriend")}
-          >
-            <Ionicons name="person-add" size={24} color="white" />
-            <Text style={styles.addFriendButtonText}>Add Friend</Text>
-          </TouchableOpacity>
-        }
+        ListHeaderComponent={renderHeader}
       />
     </SafeAreaView>
   );
@@ -100,6 +114,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     marginLeft: 10,
+  },
+  avatar: {
+    marginRight: 10,
+  },
+  friendsLabel: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
 

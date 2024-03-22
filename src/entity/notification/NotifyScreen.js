@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, FlatList, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import authService from "../auth/authService";
+import { Button } from "react-native-paper";
 
 const NotifyScreen = () => {
   const [requests, setRequests] = useState([]);
@@ -9,7 +17,18 @@ const NotifyScreen = () => {
     const fetchFriendRequests = async () => {
       try {
         const fetchedRequests = await authService.fetchFriendRequests();
-        setRequests(fetchedRequests);
+        const requestsWithSenderDetails = await Promise.all(
+          fetchedRequests.map(async (req) => {
+            const senderDetails = await authService.getUserProfile(
+              req.senderId
+            );
+            return {
+              ...req,
+              senderName: senderDetails.name,
+            };
+          })
+        );
+        setRequests(requestsWithSenderDetails);
       } catch (error) {
         console.error("Error fetching friend requests:", error);
         Alert.alert("Error", "Could not fetch friend requests.");
@@ -70,15 +89,24 @@ const NotifyScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.requestItem}>
             <Text style={styles.requestText}>
-              {item.email} wants to be your friend.
+              {item.senderName}wants to be your friend.
             </Text>
             <View style={styles.buttonsContainer}>
-              <Button title="Accept" onPress={() => handleAccept(item.id)} />
               <Button
-                title="Reject"
+                mode="contained"
+                onPress={() => handleAccept(item.id)}
+                style={styles.acceptButton}
+              >
+                Accept
+              </Button>
+              <Button
+                mode="outlined"
                 onPress={() => handleReject(item.id)}
                 color="#D32F2F"
-              />
+                style={styles.rejectButton}
+              >
+                Reject
+              </Button>
             </View>
           </View>
         )}
@@ -90,30 +118,43 @@ const NotifyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+    backgroundColor: "#F7F7F7", // Light grey background
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
+    color: "#333",
     marginBottom: 20,
   },
   requestItem: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 10,
     marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   requestText: {
     fontSize: 16,
+    color: "#333",
+    flex: 1,
   },
   buttonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: 150,
+    marginLeft: 20,
+  },
+  acceptButton: {
+    marginRight: 10,
+  },
+  rejectButton: {
+    marginLeft: 10,
   },
 });
 

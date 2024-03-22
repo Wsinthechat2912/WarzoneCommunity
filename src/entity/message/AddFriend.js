@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Alert, StyleSheet } from "react-native";
+import { View, TextInput, Button, Alert, StyleSheet, Text } from "react-native";
 import authService from "../auth/authService";
 
 const AddFriend = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
 
   const handleAddFriend = async () => {
-    if (!email.trim()) {
-      Alert.alert("Input Error", "Please enter an email address.");
+    if (!identifier.trim()) {
+      Alert.alert("Input Error", "Please enter a valid identifier.");
       return;
     }
 
-    const result = await authService.sendFriendRequest(email.trim());
+    const result = await authService.sendFriendRequest(identifier.trim());
     if (result.success) {
       Alert.alert("Success", "Friend request sent successfully.");
-      setEmail("");
+      setIdentifier("");
     } else {
       Alert.alert("Failed", result.message);
     }
@@ -23,11 +23,11 @@ const AddFriend = () => {
   return (
     <View style={styles.container}>
       <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Enter User's email"
+        value={identifier}
+        onChangeText={setIdentifier}
+        placeholder="Enter user's name, email or ID"
         style={styles.input}
-        keyboardType="email-address"
+        keyboardType="default"
       />
       <Button title="Send Friend Request" onPress={handleAddFriend} />
     </View>
