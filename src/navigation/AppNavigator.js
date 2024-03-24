@@ -8,6 +8,11 @@ import TabNavigator from "./TabNavigator";
 import ProfileScreen from "../entity/profile/ProfileScreen";
 import AddFriend from "../entity/message/AddFriend";
 import MessagingScreen from "../entity/message/MessagingScreen";
+import CommunityScreen from "../entity/community/CommunityScreen";
+import NewGamerScreen from "../entity/community/NewGamerScreen";
+import ExperiencedGamerScreen from "../entity/community/ExperiencedGamerScreen";
+import ServerChatScreen from "../entity/community/ServerChatScreen";
+import ManagingServers from "../entity/community/ManagingServers";
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +56,23 @@ const AppNavigator = () => (
           title: route.params.friendName || "Messaging",
         })}
       />
+      <Stack.Screen
+        name="CommunityScreen"
+        component={CommunityScreen}
+        options={{ title: "Community" }}
+      />
+      <Stack.Screen
+        name="NewGamerScreen"
+        component={NewGamerScreen}
+        options={{ title: "New Gamer" }}
+      />
+      <Stack.Screen
+        name="ExperiencedGamerScreen"
+        component={ExperiencedGamerScreen}
+        options={{ title: "Experienced Gamer" }}
+      />
+      <Stack.Screen name="ServerChatScreen" component={ServerChatScreen} />
+      <Stack.Screen name="ManagingServers" component={ManagingServers} />
     </Stack.Navigator>
   </NavigationContainer>
 );
