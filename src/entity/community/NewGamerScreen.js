@@ -18,16 +18,12 @@ const NewGamerScreen = () => {
   useEffect(() => {
     let isActive = true;
 
-    const fetchServers = async () => {
-      const unsubscribe = ServerService.fetchUserServers((userServers) => {
-        if (isActive) {
-          setServers(userServers);
-        }
-      });
-      // Cleanup function
-      return unsubscribe;
-    };
-    fetchServers();
+    ServerService.fetchUserServers("new", (userServers) => {
+      if (isActive) {
+        setServers(userServers);
+      }
+    });
+
     return () => {
       isActive = false;
     };

@@ -13,6 +13,8 @@ import NewGamerScreen from "../entity/community/NewGamerScreen";
 import ExperiencedGamerScreen from "../entity/community/ExperiencedGamerScreen";
 import ServerChatScreen from "../entity/community/ServerChatScreen";
 import ManagingServers from "../entity/community/ManagingServers";
+import ExperiencedManagingServers from "../entity/community/ExperiencedManagingServers";
+import ExperiencedServerChat from "../entity/community/ExperiencedServerChat";
 
 const Stack = createNativeStackNavigator();
 
@@ -73,6 +75,14 @@ const AppNavigator = () => (
       />
       <Stack.Screen name="ServerChatScreen" component={ServerChatScreen} />
       <Stack.Screen name="ManagingServers" component={ManagingServers} />
+      <Stack.Screen
+        name="ExperiencedManagingServers"
+        component={ExperiencedManagingServers}
+      />
+      <Stack.Screen
+        name="ExperiencedServerChat"
+        component={ExperiencedServerChat}
+      />
     </Stack.Navigator>
   </NavigationContainer>
 );
