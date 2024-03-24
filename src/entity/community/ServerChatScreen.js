@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
-  Button,
   FlatList,
   StyleSheet,
   Text,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import { FAB } from "react-native-paper";
 import ServerService from "./ServerService";
 
 const ServerChatScreen = ({ route }) => {
@@ -85,33 +87,48 @@ const ServerChatScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.messageContainer}>
-            {item.isFirstMessageByUser && (
-              <Text
-                style={[styles.userName, { color: getUserColor(item.userId) }]}
-              >
-                {users[item.userId]?.name || item.userId}{" "}
-              </Text>
-            )}
-            <Text style={styles.message}>{item.text}</Text>
-          </View>
-        )}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={newMessage}
-          onChangeText={setNewMessage}
-          placeholder="Type a message..."
-          style={styles.input}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.content}>
+        <FlatList
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.messageContainer}>
+              {item.isFirstMessageByUser && (
+                <Text
+                  style={[
+                    styles.userName,
+                    { color: getUserColor(item.userId) },
+                  ]}
+                >
+                  {users[item.userId]?.name || item.userId}
+                </Text>
+              )}
+              <Text style={styles.message}>{item.text}</Text>
+            </View>
+          )}
         />
-        <Button title="Send" onPress={handleSendMessage} />
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={newMessage}
+            onChangeText={setNewMessage}
+            placeholder="Type a message..."
+            style={styles.input}
+          />
+          <FAB
+            small
+            icon="send"
+            onPress={handleSendMessage}
+            style={styles.fab}
+            color="#FFFFFF"
+            theme={{ colors: { accent: "#4CAF50" } }}
+          />
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -119,33 +136,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#E5E5E5",
-    padding: 10,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "space-between",
   },
   messageContainer: {
     marginBottom: 5,
+    marginHorizontal: 10,
   },
   userName: {
     fontWeight: "bold",
   },
   message: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#FFF",
     padding: 10,
     borderRadius: 5,
     marginVertical: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 10,
   },
   input: {
     flex: 1,
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    marginBottom: 10,
     marginRight: 10,
     borderRadius: 20,
     backgroundColor: "#FFF",
+  },
+  fab: {
+    backgroundColor: "#6200ee",
   },
 });
 
