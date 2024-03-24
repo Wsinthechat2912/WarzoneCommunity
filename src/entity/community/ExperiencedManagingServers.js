@@ -12,7 +12,7 @@ import {
 import ServerService from "./ServerService";
 import { useNavigation } from "@react-navigation/native";
 
-const ManagingServers = () => {
+const ExperiencedManagingServers = () => {
   const [serverName, setServerName] = useState("");
   const [serverIdentifier, setServerIdentifier] = useState("");
   const navigation = useNavigation();
@@ -23,8 +23,11 @@ const ManagingServers = () => {
       return;
     }
     try {
-      const serverId = await ServerService.createServer(serverName, "new");
-      Alert.alert("Success", `Server created! ID: ${serverId}`);
+      const serverId = await ServerService.createServer(
+        serverName,
+        "experienced"
+      );
+      Alert.alert("Success", `Experienced server created! ID: ${serverId}`);
       setServerName("");
       navigation.goBack();
     } catch (error) {
@@ -139,4 +142,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManagingServers;
+export default ExperiencedManagingServers;
