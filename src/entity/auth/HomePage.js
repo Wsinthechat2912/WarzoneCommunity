@@ -21,7 +21,7 @@ const HomePage = () => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/warzone.jpg")} // Replace with the correct path to the image in your project
+      source={require("../../../assets/warzone.jpg")}
       style={styles.background}
     >
       <View style={styles.overlay}>
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Add an overlay for better text readability
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
