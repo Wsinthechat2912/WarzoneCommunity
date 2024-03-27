@@ -8,7 +8,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Ensure you have expo icons installed
+import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../../firebase/config";
 import {
   sendMessage,
